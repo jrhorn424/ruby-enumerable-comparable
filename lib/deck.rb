@@ -2,32 +2,42 @@
 
 require_relative 'card'
 
-# A simple represenation of a deck of playing cards
+# A simple represenation of a storage of playing cards
 class Deck
-  attr_reader :deck
-  private :deck
+  include Enumerable
+
+  def each
+    storage.each do |card|
+      yield card
+    end
+  end
+
+  attr_reader :storage
+  private :storage
 
   def initialize
-    @deck = Card::SUITS.map do |suit|
+    @storage = Card::SUITS.map do |suit|
       Card::RANKS.map { |rank| Card.new(rank, suit) }
     end.flatten
   end
 
   # swap front and back somewhere in the middle third.
   def cut
-    count = deck.length
+    count = storage.length
     random = Random.rand(count / 3)
     cut_point = (count / 3 + random)
-    deck.replace deck.slice(cut_point, count - cut_point) +
-                 deck.slice(0, cut_point)
+    storage.replace(
+      storage.slice(cut_point, count - cut_point) + storage.slice(0, cut_point)
+    )
+    self
   end
 
   def draw
-    @deck.shift
+    storage.shift
   end
 
   def shuffle
-    @deck.shuffle!
+    storage.shuffle!
     self
   end
 
